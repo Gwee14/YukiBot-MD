@@ -62,6 +62,7 @@ const BOT_TYPES = [
   { name: 'SubBot', folder: './Sessions/Subs', starter: startSubBot }
 ]
 
+if (!fs.existsSync('./tmp')) fs.mkdirSync('./tmp', { recursive: true });
 global.conns = global.conns || []
 const reconnecting = new Set()
 
@@ -91,7 +92,16 @@ async function loadBots() {
   await loadBots()
 })()
 
-if (!fs.existsSync('./tmp')) fs.mkdirSync('./tmp', { recursive: true });
+function cleanTmp() {
+  try {
+    const files = fs.readdirSync('./tmp');
+    for (const file of files) {
+      try { fs.rmSync('./tmp/' + file, { recursive: true, force: true }); } catch {}
+    }
+    if (files.length > 0) console.log(chalk.gray(`[ ✿  ]  Limpiados ${files.length} archivos temporales de tmp`));
+  } catch {}
+}
+setInterval(cleanTmp, 1 * 60 * 60 * 1000);
 
 let opcion;
 if (methodCodeQR) {
@@ -115,24 +125,15 @@ async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState(global.sessionName)
   const { version, isLatest } = await fetchLatestBaileysVersion()
   const logger = pino({ level: "silent" })
-
   console.info = () => {}
   console.debug = () => {}
-
-  const browserDesc =
-    typeof Browsers?.macOS === 'function'
-      ? Browsers.macOS('Chrome')
-      : (Browsers?.macOS ?? ['macOS', 'Chrome', '10.15.7'])
-
+  const browser = typeof Browsers?.macOS === 'function' ? Browsers.macOS('Chrome') : (Browsers?.macOS ?? ['macOS', 'Chrome', '10.15.7'])
   const clientt = makeWASocket({
     version,
     logger,
     printQRInTerminal: false,
-    browser: browserDesc,
-    auth: {
-      creds: state.creds,
-      keys: makeCacheableSignalKeyStore(state.keys, logger),
-    },
+    browser,
+    auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, logger) },
     markOnlineOnConnect: false,
     generateHighQualityLinkPreview: true,
     syncFullHistory: false,
@@ -161,8 +162,7 @@ async function startBot() {
   client.sendText = (jid, text, quoted = "", options) =>
   client.sendMessage(jid, { text: text, ...options }, { quoted })
   client.ev.on("connection.update", async (update) => {
-    const { qr, connection, lastDisconnect, isNewLogin, receivedPendingNotifications, } = update
-    
+    const { qr, connection, lastDisconnect, isNewLogin, receivedPendingNotifications, } = update    
     if (qr != 0 && qr != undefined || methodCodeQR) {
     if (opcion == '1' || methodCodeQR) {
       console.log(chalk.green.bold("[ ✿ ] Escanea este código QR"));
@@ -205,7 +205,6 @@ async function startBot() {
       }
     }
     if (connection == "open") {
-         const userJid = jidNormalizedUser(client.user.id)
          const userName = client.user.name || "Desconocido"
          console.log(chalk.green.bold(`[ ✿ ]  Conectado a: ${userName}`))
     }
@@ -238,6 +237,7 @@ async function startBot() {
   } catch (err) {
    console.log(chalk.gray(`[ BOT  ]  → ${err}`))
   }
+  
   client.decodeJid = (jid) => {
     if (!jid) return jid
     if (/:\d+@/gi.test(jid)) {
@@ -252,3 +252,15 @@ async function startBot() {
     console.log(chalk.gray('[ ✿  ]  Base de datos cargada correctamente.'))
   await startBot()
 })()
+
+process.on('uncaughtException', (err) => {
+  const msg = err?.message || '';
+  if (msg.includes('rate-overlimit') || msg.includes('timed out') || msg.includes('Connection Closed')) return;
+  console.error(chalk.red('[uncaughtException]'), msg.slice(0, 120));
+});
+
+process.on('unhandledRejection', (reason) => {
+  const msg = String(reason?.message || reason || '');
+  if (msg.includes('rate-overlimit') || msg.includes('timed out') || msg.includes('Connection Closed')) return;
+  console.error(chalk.red('[unhandledRejection]'), msg.slice(0, 120));
+});

@@ -30,7 +30,6 @@ export default {
    ʚ exploración bloqueada ɞ
 
    ✖️ no tienes suficiente dinero
-   ✧ necesitas:
    ➤ ${currency}${price.toLocaleString()}
 
 ╰──────────────╯`)
@@ -68,7 +67,7 @@ export default {
 
     // 🍀 suerte
     user.luck ||= 0
-    const luckBoost = user.luck * 0.015
+    const luckBoost = user.luck * 0.02
 
     // 🎬 animación
     let { key } = await client.sendMessage(m.chat, {
@@ -87,7 +86,8 @@ export default {
 
     let item = ''
     let rare = ''
-    let value = 0
+    let min = 0
+    let max = 0
 
     // 🌟 DIVINO
     if (rand < 0.005) {
@@ -97,7 +97,8 @@ export default {
       ]
       item = divine[Math.floor(Math.random() * divine.length)]
       rare = '🌟 divino'
-      value = 200000
+      min = 300000
+      max = 500000
 
     // 🌈 MÍTICO
     } else if (rand < 0.02) {
@@ -110,7 +111,8 @@ export default {
       ]
       item = mythics[Math.floor(Math.random() * mythics.length)]
       rare = '🌈 mítico'
-      value = 150000
+      min = 180000
+      max = 300000
 
     // 🔥 LEGENDARIO
     } else if (rand < 0.06) {
@@ -124,7 +126,8 @@ export default {
       ]
       item = leg[Math.floor(Math.random() * leg.length)]
       rare = '🔥 legendario'
-      value = 100000
+      min = 120000
+      max = 200000
 
     // 💜 ÉPICO
     } else if (rand < 0.15) {
@@ -138,7 +141,8 @@ export default {
       ]
       item = epic[Math.floor(Math.random() * epic.length)]
       rare = '💜 épico'
-      value = 60000
+      min = 60000
+      max = 120000
 
     // 💙 RARO
     } else if (rand < 0.30) {
@@ -152,7 +156,8 @@ export default {
       ]
       item = rareItems[Math.floor(Math.random() * rareItems.length)]
       rare = '💙 raro'
-      value = 25000
+      min = 20000
+      max = 60000
 
     // 💚 COMÚN
     } else if (rand < 0.55) {
@@ -166,7 +171,8 @@ export default {
       ]
       item = common[Math.floor(Math.random() * common.length)]
       rare = '💚 común'
-      value = 10000
+      min = 5000
+      max = 20000
 
     // 🤍 BASURA
     } else {
@@ -180,19 +186,25 @@ export default {
       ]
       item = basura[Math.floor(Math.random() * basura.length)]
       rare = '🤍 básico'
-      value = 3000
+      min = 1000
+      max = 5000
     }
+
+    // 💰 valor dinámico con suerte
+    const luckFactor = 1 + (user.luck * 0.01)
+    let value = Math.floor(Math.random() * (max - min) + min)
+    value = Math.floor(value * luckFactor)
 
     // 🎒 inventario
     user.inventory ||= []
     user.inventory.push({ name: item, value, rare })
 
     // 💸 bonus
-    const bonus = Math.floor(value * 0.2)
+    const bonus = Math.floor(value * 0.15)
     user.coins += bonus
 
-    // 🍀 suerte
-    if (Math.random() < 0.25) user.luck++
+    // 🍀 subir suerte
+    if (Math.random() < 0.3) user.luck++
 
     await client.sendMessage(m.chat, {
       text:
@@ -204,7 +216,11 @@ export default {
    ✧ encontraste:
    ➤ ${item}
 
-   💰 +${currency}${bonus.toLocaleString()}
+   💰 valor:
+   ➤ ${currency}${value.toLocaleString()}
+
+   ✦ bonus:
+   ➤ +${currency}${bonus.toLocaleString()}
 
    🍀 suerte: ${user.luck}
    ${isOwner2 ? '\n   👑 bonus neko activo' : ''}

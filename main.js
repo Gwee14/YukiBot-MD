@@ -6,8 +6,8 @@ import path from 'path';
 import gradient from 'gradient-string';
 import seeCommands from './lib/system/commandLoader.js';
 import initDB from './lib/system/initDB.js';
-import antilink from './commands/antilink.js';
-import level from './commands/level.js';
+import antilink from './cmds/antilink.js';
+import level from './cmds/level.js';
 import { getGroupAdmins } from './lib/message.js';
 
 seeCommands();

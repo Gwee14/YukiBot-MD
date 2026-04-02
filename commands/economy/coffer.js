@@ -29,6 +29,20 @@ export default {
       if (user.coins == null) user.coins = 0
       if (user.bank == null) user.bank = 0
 
+      // ⏳ COOLDOWN 24H
+      user.lastCofre ||= 0
+      const tiempo = 24 * 60 * 60 * 1000
+      const restante = user.lastCofre + tiempo - Date.now()
+
+      if (restante > 0 && !isOwner2) {
+        return client.reply(m.chat,
+`❀ *Cofre de Pascua*
+
+ꕥ Ya abriste un cofre hoy
+✧ Espera:
+➤ *${msToTime(restante)}*`, m)
+      }
+
       const precio = 50000
 
       await m.react('🕒')
@@ -83,10 +97,12 @@ export default {
         if (user.coins >= cantidad) {
           user.coins -= cantidad
         } else {
-          const restante = cantidad - user.coins
+          const restante2 = cantidad - user.coins
           user.coins = 0
-          user.bank = Math.max(0, user.bank - restante)
+          user.bank = Math.max(0, user.bank - restante2)
         }
+
+        user.lastCofre = Date.now() // ⏳ guardar uso
 
         await m.react('✖️')
         return client.reply(m.chat,
@@ -102,6 +118,8 @@ export default {
       }
 
       user.coins += cantidad
+
+      user.lastCofre = Date.now() // ⏳ guardar uso
 
       await m.react('✔️')
 
@@ -127,4 +145,12 @@ ${ownerMsg}${resultado}
 ✧ ${e.message}`, m)
     }
   }
+}
+
+function msToTime(duration) {
+  const seconds = Math.floor((duration / 1000) % 60)
+  const minutes = Math.floor((duration / (1000 * 60)) % 60)
+  const hours = Math.floor((duration / (1000 * 60 * 60)) % 24)
+
+  return `${hours}h ${minutes}m ${seconds}s`
 }

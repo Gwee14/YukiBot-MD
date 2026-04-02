@@ -6,47 +6,51 @@ export default {
 
       const chat = global.db.data.chats[m.chat]
       const user = chat.users[m.sender]
-      const bot = global.db.data.settings[client.user.id.split(':')[0] + '@s.whatsapp.net']
+      const idBot = client.user.id.split(':')[0] + '@s.whatsapp.net'
+      const bot = global.db.data.settings[idBot]
       const currency = bot.currency || '$'
+
+      // 👑 OWNER REAL
+      const isOwner2 = [
+        idBot,
+        ...(bot.owner ? [bot.owner] : []),
+        ...global.owner.map(num => num + '@s.whatsapp.net')
+      ].includes(m.sender)
 
       if (chat.adminonly || !chat.economy) {
         return client.reply(m.chat,
-`╭─❍ 「 ✿ Economía 」
-│
-│ ✖️ ➤ Sistema desactivado
-│ ✧ Usa:
-│ ➤ *${usedPrefix}economy on*
-│
-╰──────────────❍`, m)
+`❀ *Economía*
+
+✖️ Sistema desactivado
+✧ Usa:
+➤ *${usedPrefix}economy on*`, m)
       }
 
       if (user.coins == null) user.coins = 0
       if (user.bank == null) user.bank = 0
 
-      const isOwner = m.isOwner
       const precio = 50000
 
       await m.react('🕒')
 
-      let adminMsg = ''
-      if (!isOwner) {
+      let ownerMsg = ''
+      if (!isOwner2) {
         if (user.coins < precio) {
           await m.react('✖️')
           return client.reply(m.chat,
-`╭─❍ 「 ✿ Cofre de Pascua 」
-│
-│ ✖️ ➤ No tienes suficiente dinero
-│ ✧ Precio:
-│ ➤ ¥${precio.toLocaleString()} ${currency}
-│
-╰──────────────❍`, m)
+`❀ *Cofre de Pascua*
+
+✖️ No tienes suficiente dinero
+✧ Precio:
+➤ *¥${precio.toLocaleString()} ${currency}*`, m)
         }
         user.coins -= precio
       } else {
-        adminMsg =
-`│ 👑 ➤ BONUS OWNER
-│ ✧ Apertura gratuita
-│`
+        ownerMsg =
+`👑 *BONO OWNER*
+✧ Apertura gratuita
+
+`
       }
 
       const rand = Math.random()
@@ -55,23 +59,23 @@ export default {
 
       if (rand < 0.05) {
         cantidad = Math.floor(Math.random() * (120000 - 80000 + 1)) + 80000
-        resultado = `✦ Huevo Legendario`
+        resultado = `✿ Huevo Legendario ✧`
 
       } else if (rand < 0.15) {
         cantidad = Math.floor(Math.random() * (70000 - 50000 + 1)) + 50000
-        resultado = `✦ Huevo Épico`
+        resultado = `✿ Huevo Épico ✦`
 
       } else if (rand < 0.35) {
         cantidad = Math.floor(Math.random() * (40000 - 20000 + 1)) + 20000
-        resultado = `✦ Huevo Raro`
+        resultado = `✿ Huevo Raro ✧`
 
       } else if (rand < 0.65) {
         cantidad = Math.floor(Math.random() * (15000 - 5000 + 1)) + 5000
-        resultado = `✦ Huevo Común`
+        resultado = `✿ Huevo Común ✿`
 
       } else if (rand < 0.85) {
         cantidad = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000
-        resultado = `✦ Huevo Simple`
+        resultado = `✿ Huevo Simple ꕥ`
 
       } else {
         cantidad = Math.floor(Math.random() * (20000 - 5000 + 1)) + 5000
@@ -86,14 +90,15 @@ export default {
 
         await m.react('✖️')
         return client.reply(m.chat,
-`╭─❍ 「 ✿ Cofre de Pascua 」
-│
-│ ✖️ ➤ Has caído en una trampa
-│
-│ ✧ Pierdes:
-│ ➤ ¥${cantidad.toLocaleString()} ${currency}
-│
-╰──────────────❍`, m)
+`❀ *Cofre de Pascua*
+
+✖️ *Trampa activada*
+
+ꕥ Has caído en una emboscada…
+✧ Has perdido:
+➤ *¥${cantidad.toLocaleString()} ${currency}*
+
+✦ Intenta nuevamente ✨`, m)
       }
 
       user.coins += cantidad
@@ -101,30 +106,25 @@ export default {
       await m.react('✔️')
 
       return client.reply(m.chat,
-`╭─❍ 「 ✿ Cofre de Pascua 」
-│
-${adminMsg}│ ✦ ➤ Apertura completada
-│
-│ ✿ ${resultado}
-│
-│ ✧ Recompensa:
-│ ➤ ¥${cantidad.toLocaleString()} ${currency}
-│
-│ ✧ Estado:
-│ ➤ Éxito ✨
-│
-╰──────────────❍`, m)
+`❀ *Cofre de Pascua*
+
+✦ *Apertura completada*
+
+${ownerMsg}${resultado}
+
+✧ Recompensa:
+➤ *¥${cantidad.toLocaleString()} ${currency}*
+
+ꕥ Estado: Éxito ✨`, m)
 
     } catch (e) {
       console.error(e)
       await m.react('✖️')
       return client.reply(m.chat,
-`╭─❍ 「 ⚠️ Error 」
-│
-│ ✖️ ➤ Ocurrió un problema
-│ ✧ ${e.message}
-│
-╰──────────────❍`, m)
+`⚠️ *Error*
+
+✖️ Ocurrió un problema
+✧ ${e.message}`, m)
     }
   }
 }

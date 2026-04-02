@@ -1,5 +1,5 @@
 export default {
-  command: ['cofrepascua', 'cofre'],
+  command: ['coffer', 'cofre'],
   category: 'rpg',
   run: async (client, m, args, usedPrefix) => {
     try {

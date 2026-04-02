@@ -21,6 +21,23 @@ export default {
       return m.reply(`ꕥ La economía está desactivada.`)
     }
 
+    // 💰 COSTO
+    const price = 200000
+    if (!isOwner2) {
+      if (user.coins < price) {
+        return m.reply(
+`╭─❀「 💸 」❀─╮
+   ʚ exploración bloqueada ɞ
+
+   ✖️ no tienes suficiente dinero
+   ✧ necesitas:
+   ➤ ${currency}${price.toLocaleString()}
+
+╰──────────────╯`)
+      }
+      user.coins -= price
+    }
+
     // 🧠 anti spam
     user.lastLoot ||= 0
     user.spamLoot ||= 0
@@ -37,13 +54,13 @@ export default {
 
         return m.reply(
 `╭─❀「 ⚠️ 」❀─╮
-  ฅ Anti-spam activado
+  ฅ anti-spam activado
   💸 -${currency}${multa.toLocaleString()}
 ╰──────────────╯`)
       }
 
       const restante = formatTime(cooldown - (now - user.lastLoot))
-      return m.reply(`⏳ Espera: *${restante}*`)
+      return m.reply(`⏳ espera: *${restante}*`)
     }
 
     user.lastLoot = now
@@ -53,7 +70,7 @@ export default {
     user.luck ||= 0
     const luckBoost = user.luck * 0.015
 
-    // 🎬 animación bonita
+    // 🎬 animación
     let { key } = await client.sendMessage(m.chat, {
       text: `🐾 buscando cositas...\nฅ▱▱▱▱▱`
     }, { quoted: m })
@@ -74,7 +91,11 @@ export default {
 
     // 🌟 DIVINO
     if (rand < 0.005) {
-      item = '🐱✨ huevo neko celestial'
+      const divine = [
+        '🐱✨ huevo neko celestial',
+        '🌌🐾 esencia del cosmos'
+      ]
+      item = divine[Math.floor(Math.random() * divine.length)]
       rare = '🌟 divino'
       value = 200000
 
@@ -83,7 +104,9 @@ export default {
       const mythics = [
         '🐰🌸 reliquia pascua',
         '🐱👑 corona neko',
-        '🐉🔥 alma antigua'
+        '🐉🔥 alma antigua',
+        '🌙🐾 fragmento lunar',
+        '🌀💫 núcleo arcano'
       ]
       item = mythics[Math.floor(Math.random() * mythics.length)]
       rare = '🌈 mítico'
@@ -95,7 +118,9 @@ export default {
         '🐾⚡ garra eléctrica',
         '🐱💎 gema brillante',
         '🐰🍫 huevo dulce',
-        '🌙🔮 esfera mágica'
+        '🌙🔮 esfera mágica',
+        '🔥🗡 filo ardiente',
+        '🌸✨ pétalo eterno'
       ]
       item = leg[Math.floor(Math.random() * leg.length)]
       rare = '🔥 legendario'
@@ -107,7 +132,9 @@ export default {
         '🐾💜 amuleto neko',
         '🌸📿 collar floral',
         '🍡✨ dulce mágico',
-        '🧿🌙 ojo protector'
+        '🧿🌙 ojo protector',
+        '🐱🎀 lazo bendito',
+        '🌿💫 esencia natural'
       ]
       item = epic[Math.floor(Math.random() * epic.length)]
       rare = '💜 épico'
@@ -119,7 +146,9 @@ export default {
         '🐱🗡 garra afilada',
         '🌸🧪 poción floral',
         '📜🐾 pergamino neko',
-        '🍃✨ hoja brillante'
+        '🍃✨ hoja brillante',
+        '🧃💧 frasco mágico',
+        '🐾🪶 pluma ligera'
       ]
       item = rareItems[Math.floor(Math.random() * rareItems.length)]
       rare = '💙 raro'
@@ -131,7 +160,9 @@ export default {
         '🐾🥕 zanahoria',
         '🐱🍞 pan',
         '🌿🪵 madera',
-        '🐰🪨 piedrita'
+        '🐰🪨 piedrita',
+        '🍎🐾 manzana',
+        '🌾🌿 trigo'
       ]
       item = common[Math.floor(Math.random() * common.length)]
       rare = '💚 común'
@@ -143,7 +174,9 @@ export default {
         '🧻🐾 papel roto',
         '🥾🐱 zapato viejo',
         '🪨💤 piedra',
-        '🪵😴 madera rota'
+        '🪵😴 madera rota',
+        '🥫🐾 lata vacía',
+        '📦💀 caja rota'
       ]
       item = basura[Math.floor(Math.random() * basura.length)]
       rare = '🤍 básico'
@@ -154,11 +187,11 @@ export default {
     user.inventory ||= []
     user.inventory.push({ name: item, value, rare })
 
-    // 💸 bonus leve
+    // 💸 bonus
     const bonus = Math.floor(value * 0.2)
     user.coins += bonus
 
-    // 🍀 subir suerte
+    // 🍀 suerte
     if (Math.random() < 0.25) user.luck++
 
     await client.sendMessage(m.chat, {

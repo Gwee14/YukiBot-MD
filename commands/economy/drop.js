@@ -21,7 +21,7 @@ export default {
       return m.reply(`ꕥ La economía está desactivada.`)
     }
 
-    // 🧠 ANTI SPAM
+    // 🧠 anti spam
     user.lastLoot ||= 0
     user.spamLoot ||= 0
 
@@ -36,13 +36,10 @@ export default {
         user.coins = Math.max(0, user.coins - multa)
 
         return m.reply(
-`╭━〔 ⚠️ ANTI-SPAM 〕━⬣
-✖️ Estás abusando
-
-💸 Multa:
-➤ -${currency}${multa.toLocaleString()}
-
-╰━━━━━━━━━━━━⬣`)
+`╭─❀「 ⚠️ 」❀─╮
+  ฅ Anti-spam activado
+  💸 -${currency}${multa.toLocaleString()}
+╰──────────────╯`)
       }
 
       const restante = formatTime(cooldown - (now - user.lastLoot))
@@ -52,18 +49,18 @@ export default {
     user.lastLoot = now
     user.spamLoot = 0
 
-    // 🍀 SUERTE
+    // 🍀 suerte
     user.luck ||= 0
     const luckBoost = user.luck * 0.015
 
-    // 🎬 ANIMACIÓN
+    // 🎬 animación bonita
     let { key } = await client.sendMessage(m.chat, {
-      text: `🌸 Evento Pascua...\n▰▱▱▱▱▱`
+      text: `🐾 buscando cositas...\nฅ▱▱▱▱▱`
     }, { quoted: m })
 
     await delay(1200)
     await client.sendMessage(m.chat, {
-      text: `🌸 Buscando reliquias...\n▰▰▰▱▱▱`,
+      text: `🐾 olfateando...\nฅ▰▰▱▱▱`,
       edit: key
     })
 
@@ -75,117 +72,111 @@ export default {
     let rare = ''
     let value = 0
 
-    // 🌈 DIVINO (ULTRA RARO)
+    // 🌟 DIVINO
     if (rand < 0.005) {
-      item = '🌟 Huevo Celestial Supremo'
-      rare = '✨ DIVINO'
+      item = '🐱✨ huevo neko celestial'
+      rare = '🌟 divino'
       value = 200000
 
     // 🌈 MÍTICO
     } else if (rand < 0.02) {
       const mythics = [
-        '🥚 Reliquia de Pascua Divina',
-        '👑 Corona del Conejo Sagrado',
-        '🐉 Alma de Dragón Antiguo'
+        '🐰🌸 reliquia pascua',
+        '🐱👑 corona neko',
+        '🐉🔥 alma antigua'
       ]
       item = mythics[Math.floor(Math.random() * mythics.length)]
-      rare = '🌈 MÍTICO'
+      rare = '🌈 mítico'
       value = 150000
 
     // 🔥 LEGENDARIO
     } else if (rand < 0.06) {
       const leg = [
-        '🔥 Espada del Alba',
-        '🐰 Orejas Sagradas',
-        '💎 Corazón Arcano',
-        '⚡ Núcleo Energético'
+        '🐾⚡ garra eléctrica',
+        '🐱💎 gema brillante',
+        '🐰🍫 huevo dulce',
+        '🌙🔮 esfera mágica'
       ]
       item = leg[Math.floor(Math.random() * leg.length)]
-      rare = '🔥 LEGENDARIO'
+      rare = '🔥 legendario'
       value = 100000
 
     // 💜 ÉPICO
     } else if (rand < 0.15) {
       const epic = [
-        '🍫 Chocolate Encantado',
-        '🧿 Amuleto Oscuro',
-        '📿 Collar Místico',
-        '🔮 Esfera Arcana'
+        '🐾💜 amuleto neko',
+        '🌸📿 collar floral',
+        '🍡✨ dulce mágico',
+        '🧿🌙 ojo protector'
       ]
       item = epic[Math.floor(Math.random() * epic.length)]
-      rare = '💜 ÉPICO'
+      rare = '💜 épico'
       value = 60000
 
     // 💙 RARO
     } else if (rand < 0.30) {
       const rareItems = [
-        '🌸 Flor Antigua',
-        '🗡 Fragmento Rúnico',
-        '📜 Pergamino viejo',
-        '🧪 Poción rara'
+        '🐱🗡 garra afilada',
+        '🌸🧪 poción floral',
+        '📜🐾 pergamino neko',
+        '🍃✨ hoja brillante'
       ]
       item = rareItems[Math.floor(Math.random() * rareItems.length)]
-      rare = '💙 RARO'
+      rare = '💙 raro'
       value = 25000
 
-    // 💚 COMÚN+
+    // 💚 COMÚN
     } else if (rand < 0.55) {
       const common = [
-        '🛡 Escudo gastado',
-        '🪓 Hacha vieja',
-        '🥕 Zanahoria fresca',
-        '🍞 Pan duro'
+        '🐾🥕 zanahoria',
+        '🐱🍞 pan',
+        '🌿🪵 madera',
+        '🐰🪨 piedrita'
       ]
       item = common[Math.floor(Math.random() * common.length)]
-      rare = '💚 COMÚN'
+      rare = '💚 común'
       value = 10000
 
     // 🤍 BASURA
     } else {
       const basura = [
-        '🪨 Piedra inútil',
-        '🧻 Papel roto',
-        '🥾 Zapato viejo',
-        '🪵 Madera podrida'
+        '🧻🐾 papel roto',
+        '🥾🐱 zapato viejo',
+        '🪨💤 piedra',
+        '🪵😴 madera rota'
       ]
       item = basura[Math.floor(Math.random() * basura.length)]
-      rare = '🤍 BASURA'
+      rare = '🤍 básico'
       value = 3000
     }
 
-    // 🎒 INVENTARIO
+    // 🎒 inventario
     user.inventory ||= []
     user.inventory.push({ name: item, value, rare })
 
-    // 💸 BONUS
+    // 💸 bonus leve
     const bonus = Math.floor(value * 0.2)
     user.coins += bonus
 
-    // 🍀 SUERTE
+    // 🍀 subir suerte
     if (Math.random() < 0.25) user.luck++
 
     await client.sendMessage(m.chat, {
       text:
-`╭━━━〔 🌸 〕━━━⬣
-❀ *Exploración Pascua*
+`╭─❀「 🐾 」❀─╮
+   ʚ exploración neko ɞ
 
-${rare}
+   ${rare}
 
-ꕥ Item:
-➤ *${item}*
+   ✧ encontraste:
+   ➤ ${item}
 
-💰 Valor:
-➤ ${currency}${value.toLocaleString()}
+   💰 +${currency}${bonus.toLocaleString()}
 
-✦ Bonus:
-➤ +${currency}${bonus.toLocaleString()}
+   🍀 suerte: ${user.luck}
+   ${isOwner2 ? '\n   👑 bonus neko activo' : ''}
 
-🍀 Suerte:
-➤ ${user.luck}
-
-${isOwner2 ? '👑 OWNER BONUS' : ''}
-
-╰━━━━━━━━━━━━⬣`
+╰──────────────╯`
     }, { edit: key })
   }
 }

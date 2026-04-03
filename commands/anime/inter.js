@@ -82,103 +82,79 @@ function getRandomSymbol() {
   return symbols[Math.floor(Math.random() * symbols.length)]
 }
 
-const alias = {
-  psycho: ['psycho', 'locura'],
-  poke: ['poke', 'picar'],
-  cook: ['cook', 'cocinar'],
-  lewd: ['lewd', 'provocativo', 'provocativa'],
-  greet: ['greet', 'saludar', 'hola', 'hi'],
-  facepalm: ['facepalm', 'palmada', 'frustracion'],
-  angry: ['angry','enojado','enojada'],
-  bleh: ['bleh'],
-  bored: ['bored','aburrido','aburrida'],
-  clap: ['clap','aplaudir'],
-  coffee: ['coffee','cafe'],
-  dramatic: ['dramatic','drama'],
-  drunk: ['drunk'],
-  cold: ['cold'],
-  impregnate: ['impregnate','preg','preñar','embarazar'],
-  kisscheek: ['kisscheek','beso','besar'],
-  laugh: ['laugh'],
-  love: ['love','amor'],
-  pout: ['pout','mueca'],
-  punch: ['punch','golpear'],
-  run: ['run','correr'],
-  sad: ['sad','triste'],
-  scared: ['scared','asustado'],
-  seduce: ['seduce','seducir'],
-  shy: ['shy','timido','timida'],
-  sleep: ['sleep','dormir'],
-  smoke: ['smoke','fumar'],
-  spit: ['spit','escupir'],
-  step: ['step','pisar'],
-  think: ['think','pensar'],
-  walk: ['walk','caminar'],
-  hug: ['hug','abrazar'],
-  kill: ['kill','matar'],
-  eat: ['eat','nom','comer'],
-  kiss: ['kiss','muak','besar'],
-  wink: ['wink','guiñar'],
-  pat: ['pat','acariciar'],
-  happy: ['happy','feliz'],
-  bully: ['bully','molestar'],
-  bite: ['bite','morder'],
-  blush: ['blush','sonrojarse'],
-  wave: ['wave','saludar'],
-  bath: ['bath','bañarse'],
-  smug: ['smug','presumir'],
-  smile: ['smile','sonreir'],
-  highfive: ['highfive','choca'],
-  handhold: ['handhold','tomar'],
-  cringe: ['cringe','mueca'],
-  bonk: ['bonk','golpe'],
-  cry: ['cry','llorar'],
-  lick: ['lick','lamer'],
-  slap: ['slap','bofetada'],
-  dance: ['dance','bailar'],
-  cuddle: ['cuddle','acurrucar'],
-  sing: ['sing','cantar'],
-  tickle: ['tickle','cosquillas'],
-  scream: ['scream','gritar'],
-  push: ['push','empujar'],
-  nope: ['nope','no'],
-  jump: ['jump','saltar'],
-  heat: ['heat','calor'],
-  gaming: ['gaming','jugar'],
-  draw: ['draw','dibujar'],
-  call: ['call','llamar'],
-  snuggle: ['snuggle','acurrucarse'],
-  blowkiss: ['blowkiss','besito'],
-  trip: ['trip','tropezar'],
-  stare: ['stare','mirar'],
-  sniff: ['sniff','oler'],
-  curious: ['curious','curioso','curiosa'],
-  thinkhard: ['thinkhard','pensar'],
-  comfort: ['comfort','consolar'],
-  peek: ['peek','mirar']
-};
+// ===== CONTADOR GLOBAL =====
+if (!global.db.data.kisses) global.db.data.kisses = {}
 
 export default {
 command: ['angry','enojado','enojada','bleh','bored','aburrido','aburrida','clap','aplaudir','coffee','cafe','dramatic','drama','drunk','cold','impregnate','preg','preñar','embarazar','kisscheek','beso','besar','laugh','love','amor','pout','mueca','punch','golpear','run','correr','sad','triste','scared','asustado','seduce','seducir','shy','timido','timida','sleep','dormir','smoke','fumar','spit','escupir','step','pisar','think','pensar','walk','caminar','hug','abrazar','kill','matar','eat','nom','comer','kiss','muak','wink','guiñar','pat','acariciar','happy','feliz','bully','molestar','bite','morder','blush','sonrojarse','wave','saludar','bath','bañarse','smug','presumir','smile','sonreir','highfive','choca','handhold','tomar','cringe','mueca','bonk','golpe','cry','llorar','lick','lamer','slap','bofetada','dance','bailar','cuddle','acurrucar','sing','cantar','tickle','cosquillas','scream','gritar','push','empujar','nope','no','jump','saltar','heat','calor','gaming','jugar','draw','dibujar','call','llamar','snuggle','acurrucarse','blowkiss','besito','trip','tropezar','stare','mirar','sniff','oler','curious','curioso','curiosa','thinkhard','pensar','comfort','consolar','peek','mirar','psycho','locura','poke','picar','cook','cocinar','lewd','provocativo','provocativa','greet','saludar','hola','hi','facepalm','palmada','frustracion'],
-  category: 'anime',
-  run: async (client, m, args, usedPrefix, command) => {
-    const currentCommand = Object.keys(alias).find(key => alias[key].includes(command)) || command
-    if (!captions[currentCommand]) return
-    let mentionedJid = m.mentionedJid
-    let who2 = mentionedJid.length > 0 ? mentionedJid[0] : (m.quoted ? m.quoted.sender : m.sender)
-    const who = await resolveLidToRealJid(who2, client, m.chat)
-    const fromName = global.db.data.users[m.sender]?.name || '@'+m.sender.split('@')[0]
-    const toName = global.db.data.users[who]?.name || '@'+who.split('@')[0]
-    const genero = global.db.data.users[m.sender]?.genre || 'Oculto'
-    const captionText = captions[currentCommand](fromName, toName, genero)
-    const caption = who !== m.sender ? `\`${fromName}.\` ${captionText} \`${toName}.\` ${getRandomSymbol()}.` : `\`${fromName}\` ${captionText} ${getRandomSymbol()}.`
-    try {
-      const response = await fetch(`https://api.stellarwa.xyz/sfw/interaction?inter=${currentCommand}`)
-      const json = await response.json()
-      const { result } = json
-      await client.sendMessage(m.chat, { video: { url: result }, gifPlayback: true, caption, mentions: [who, m.sender] }, { quoted: m })
-    } catch (e) {
-    await m.reply(`> An unexpected error occurred while executing command *${usedPrefix + command}*. Please try again or contact support if the issue persists.\n> [Error: *${e.message}*]`)
-    }
-  },
+category: 'anime',
+
+run: async (client, m, args, usedPrefix, command) => {
+
+const currentCommand = Object.keys(alias).find(key => alias[key].includes(command)) || command
+if (!captions[currentCommand]) return
+
+let mentionedJid = m.mentionedJid
+let who2 = mentionedJid.length > 0 ? mentionedJid[0] : (m.quoted ? m.quoted.sender : m.sender)
+const who = await resolveLidToRealJid(who2, client, m.chat)
+
+const fromName = global.db.data.users[m.sender]?.name || '@'+m.sender.split('@')[0]
+const toName = global.db.data.users[who]?.name || '@'+who.split('@')[0]
+const genero = global.db.data.users[m.sender]?.genre || 'Oculto'
+
+const captionText = captions[currentCommand](fromName, toName, genero)
+
+let caption = who !== m.sender 
+? `\`${fromName}.\` ${captionText} \`${toName}.\` ${getRandomSymbol()}.` 
+: `\`${fromName}\` ${captionText} ${getRandomSymbol()}.`
+
+// ===== CONTADOR SOLO BESOS =====
+let extra = ''
+if (['kiss','kisscheek','blowkiss'].includes(currentCommand)) {
+const pairId = [m.sender, who].sort().join('-')
+if (!global.db.data.kisses[pairId]) global.db.data.kisses[pairId] = 0
+global.db.data.kisses[pairId]++
+const totalKisses = global.db.data.kisses[pairId]
+extra = `\n💞 Se han besado *${totalKisses}* veces.`
+}
+
+// ===== BOTONES PARA TODAS LAS INTENCIONES =====
+const buttons = [
+{
+buttonId: `${usedPrefix}${command} @${who.split('@')[0]}`,
+buttonText: { displayText: '🔁 Repetir acción' },
+type: 1
+},
+{
+buttonId: `${usedPrefix}kiss @${who.split('@')[0]}`,
+buttonText: { displayText: '💋 Besar' },
+type: 1
+},
+{
+buttonId: `${usedPrefix}hug @${who.split('@')[0]}`,
+buttonText: { displayText: '🤗 Abrazar' },
+type: 1
+}
+]
+
+try {
+const response = await fetch(`https://api.stellarwa.xyz/sfw/interaction?inter=${currentCommand}`)
+const json = await response.json()
+const { result } = json
+
+await client.sendMessage(m.chat, {
+video: { url: result },
+gifPlayback: true,
+caption: caption + extra,
+mentions: [who, m.sender],
+footer: '✨ Interacción',
+buttons,
+headerType: 4
+}, { quoted: m })
+
+} catch (e) {
+await m.reply(`Error: ${e.message}`)
+}
+
+}
 };

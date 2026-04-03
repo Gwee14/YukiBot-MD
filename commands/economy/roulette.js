@@ -17,6 +17,8 @@ export default {
     const user = chatData.users[m.sender]
     const currency = botSettings.currency || 'Monedas'
 
+    if (!user.loseStreak) user.loseStreak = 0
+
     if (args.length < 2)
       return m.reply(`《✧》 Debes ingresar una cantidad de ${currency} y apostar a un color.`)
 
@@ -46,26 +48,27 @@ export default {
     // 💸 quitar apuesta primero
     user.coins -= amount
 
-    // 🎡 PROBABILIDADES NERFEADAS
+    // 🎡 RANDOM REAL (sin patrón)
     const roll = Math.random()
     let resultColor = ''
 
     if (roll < 0.45) resultColor = 'red'
     else if (roll < 0.90) resultColor = 'black'
-    else resultColor = 'green' // solo 10%
+    else resultColor = 'green'
 
-    // 🧠 ANTI RICOS
+    // 🧠 ANTI RICOS MÁS FUERTE
     let richPenalty = 0
-    if (user.coins > 100000) richPenalty = 0.10
-    if (user.coins > 500000) richPenalty = 0.20
-    if (user.coins > 1000000) richPenalty = 0.30
+    if (user.coins > 100000) richPenalty = 0.15
+    if (user.coins > 500000) richPenalty = 0.30
+    if (user.coins > 1000000) richPenalty = 0.45
 
     if (resultColor === color) {
+
+      user.loseStreak = 0
 
       let reward = 0
 
       if (resultColor === 'green') {
-        // 💀 mega nerf green
         reward = Math.floor(amount * (8 - richPenalty * 5))
       } else {
         reward = Math.floor(amount * (1.5 - richPenalty))
@@ -82,14 +85,31 @@ export default {
 
     } else {
 
-      // 💀 castigo extra
-      if (Math.random() < 0.25) {
-        let extra = Math.floor(amount * 0.5)
+      user.loseStreak += 1
+
+      // 💀 castigo base
+      let extraChance = 0.50
+
+      // 😈 mientras más pierde, peor se pone
+      if (user.loseStreak >= 2) extraChance = 0.65
+      if (user.loseStreak >= 4) extraChance = 0.80
+
+      let extraText = ''
+
+      if (Math.random() < extraChance) {
+        let extra = Math.floor(amount * (0.8 + (user.loseStreak * 0.05)))
         user.coins = Math.max(0, user.coins - extra)
+        extraText = `\n💀 Perdiste extra ¥${extra.toLocaleString()} ${currency}`
+      }
+
+      // 😈 sensación de "casi ganas"
+      let nearMiss = ''
+      if (Math.random() < 0.35) {
+        nearMiss = `\n😵 Estuviste cerca...`
       }
 
       await client.sendMessage(chatId, {
-        text: `「✿」 La ruleta salió en *${resultColor}* y has perdido *¥${amount.toLocaleString()} ${currency}*.`,
+        text: `「✿」 La ruleta salió en *${resultColor}* y has perdido *¥${amount.toLocaleString()} ${currency}*.${extraText}${nearMiss}`,
         mentions: [senderId]
       }, { quoted: m })
     }
